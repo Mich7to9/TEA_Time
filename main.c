@@ -283,3 +283,5 @@ void calculate_statistics(statistics_t * stat,uint32_t operand_a,uint32_t operan
 		stat->avg_operand_b = stat->sum_operand_b/stat->counter;
 	}
 }
+
+
