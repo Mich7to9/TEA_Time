@@ -104,14 +104,13 @@ void calculate_statistics(statistics_t * stat,uint32_t operand_a,uint32_t operan
  * @result he new element or NULL in case of error
  */
 listNode_t* list_get_new_element(uint32_t operand_a,uint32_t operand_b,uint64_t result);
-
 /**
  * @brief free a list Node this returns the memory to the os
  * 
  * @param elem [in] Pointer to a list node
  */
-void list_free_element(listNode_t* elem);
 
+void list_free_element(listNode_t* elem);
 
 /**
  * @brief insert element before another one
@@ -168,7 +167,7 @@ int main (int argc, char** argv)
 	int32_t ret = EXIT_SUCCESS;
 	FILE * in_file_hdl = NULL;
 	FILE * out_file_hdl = NULL;
-	listNode_t *curr = result_list.headOfList;
+	//listNode_t *curr = result_list.headOfList;
 	int idx = 0;
 
 	statistics_t stat;
@@ -236,7 +235,7 @@ int main (int argc, char** argv)
 					operands_b[counter] = operand_b;
 					fprintf(out_file_hdl,"%llu = %llu + (%d * %d)\n",result[counter],prev_result,operand_a, operand_b);
 					printf("%llu = %llu + (%d * %d)\n",result[counter],prev_result,operand_a, operand_b);
-					ret = list_push_back(&result_list,list_get_new_element(operand_a,operand_b,result[counter]));
+					//ret = list_push_back(&result_list,list_get_new_element(operand_a,operand_b,result[counter]));
 					if(EXIT_FAILURE == ret)
 					{
 						break;
@@ -283,5 +282,107 @@ void calculate_statistics(statistics_t * stat,uint32_t operand_a,uint32_t operan
 		stat->avg_operand_b = stat->sum_operand_b/stat->counter;
 	}
 }
+listNode_t* list_get_new_element(uint32_t operand_a,uint32_t operand_b,uint64_t result)	//Neues Element anlegen
+{
+	listNode_t *temp = NULL;
+	temp = (listNode_t*)malloc(sizeof(listNode_t));
+	if(NULL != temp)
+	{
+		temp-> operand_a = operand_a;
+		temp-> operand_b = operand_b;
+		temp-> result = result;
+		temp->pNext= NULL;
+		temp->pPrev = NULL;
+	}
+	return temp;
 
+}
+void list_free_element(listNode_t* elem)	//Speicher wieder freigeben
+{
+	if(NULL != elem)
+	{
+		free((void*) elem);
+		elem = NULL;		//Pointer NULL setzen
+	}
+}
+int list_insert_before(doubleLinkedList_t *list , listNode_t* old ,listNode_t* elem)
+{
+	if(NULL != old && NULL != elem)
+	{
+		if(old == list->headOfList)
+		{
+			elem->pPrev = NULL;
+			elem->pNext = old;
+			old->pPrev = elem;
+			list->headOfList = elem;
+		}
+		else
+		{
+			listNode_t *temp = NULL;
+			temp = old->pPrev;
+			elem->pPrev = temp;
+			
+			temp->pNext = elem;
+			old->pPrev = elem;
+			elem->pNext = old;
+		}
+		return EXIT_SUCCESS;
+	}
+	return EXIT_FAILURE;
+	
+}
+
+
+int list_insert_after(doubleLinkedList_t *list , listNode_t* old ,listNode_t* elem)
+{
+	if(NULL != old && NULL != elem)
+	{
+		if(old == list->tailOfList)
+		{
+			elem->pPrev = old;
+			elem->pNext = NULL;
+			old->pNext = elem;
+			list->tailOfList = elem;
+		}
+		else
+		{
+			listNode_t *temp = NULL;
+			temp = old->pNext;
+			elem->pNext = temp;
+			
+			temp->pPrev = elem;
+			old->pNext = elem;
+			old = elem->pPrev;
+			
+		}
+			return EXIT_SUCCESS;
+	}
+	return EXIT_FAILURE;
+}
+int list_push_front(doubleLinkedList_t *list , listNode_t* elem)
+{
+	if (NULL != elem)
+	{
+		elem->pNext = list->headOfList;
+		list->headOfList->pPrev = elem;
+		list->headOfList = elem;
+		elem->pPrev = NULL;
+	}
+	return EXIT_SUCCESS;
+
+}
+int list_push_back(doubleLinkedList_t *list, listNode_t* elem)
+{
+	
+	if (NULL != elem)
+	{
+		elem->pPrev = list->tailOfList;
+		list->tailOfList->pNext = elem;
+		list->tailOfList = elem;
+
+		elem->pNext = NULL;
+
+	}
+	return EXIT_SUCCESS;
+}
 
